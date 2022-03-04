@@ -18,8 +18,6 @@ pip install nrkdl
   --url URL            URL for the Movie/TV-show (e.g:
                        https://tv.nrk.no/program/KOID75006720)
 
-  --seasons SEASONS    If you wish to download mulitple seasons of a show (--seasons x)
-
   --location LOCATION  Desired download location (Default is the current
                        working directory)
 
@@ -30,7 +28,7 @@ pip install nrkdl
 #### Download an entire tv-show:
 
 ```bash
-nrkdl --url https://tv.nrk.no/serie/exit --seasons 2
+nrkdl --url https://tv.nrk.no/serie/exit
 ```
 
 #### Download a single tv-show episode:
