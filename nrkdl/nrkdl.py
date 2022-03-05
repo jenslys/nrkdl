@@ -41,9 +41,10 @@ def my_hook(d):
 
 def download():
     try:
+        pattern = r"[0-9]+[.]+[ ]"  # Will be used for removing x. episodetitle from the filename
         video_title = "%(series)s"  # Title of show/movie
         movie = "%(title)s.%(ext)s"  # Moviename.mp4
-        tvshow = "%(series)s - %(season_number)sx%(episode)s .%(ext)s"  # Exit - 1x2. Horer og hummer på Hankø
+        tvshow = "%(series)s - %(season_number)sx%(episode_number)s - %(episode)s.%(ext)s"  # Exit - 1x2 - Horer og hummer på Hankø
         folder_name = args.location + "/" + video_title
         if "/serie/" in args.url:  # Identify if its a tvshow or movie
             filename = tvshow
@@ -65,10 +66,6 @@ def download():
             ],
         }
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info_dict = ydl.extract_info(args.url)
-            video_title = info_dict.get("title", None)
-            if not os.path.exists(folder_name):
-                os.makedirs(folder_name)
             ydl.download([args.url])
     except Exception as e:
         raise e
