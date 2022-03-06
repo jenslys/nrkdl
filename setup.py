@@ -5,9 +5,9 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="nrkdl",
-    version="1.0.1",
+    version="1.0.2",
     author="jenlys",
-    description="Download videos from tv.nrk.no",
+    description="Download movies/tv-shows from nrk.no",
     long_description=long_description,
     long_description_content_type="text/markdown",
     packages=setuptools.find_packages(),
