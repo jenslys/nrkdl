@@ -17,16 +17,18 @@ pip install nrkdl
 - python3
 - ffmpeg
 
-## Options
+## Usage
 
 ```
-  -h, --help           Show this help message and exit
+usage: nrkdl.py [-h] --url URL [--write-subs] [--keep-subs] [--audio-only] [--write-metadata]
 
-  --url URL            URL for the Movie/TV-show (e.g:
-                       https://tv.nrk.no/program/KOID75006720)
-
-  --write-subtitles    Download subtitles
-
+optional arguments:
+  -h, --help        Show this help message and exit
+  --url URL         URL for the Movie/TV-show (e.g: https://tv.nrk.no/program/KOID75006720)
+  --write-subs      Download and embed subtitles to file
+  --keep-subs       Prevent the subtitle files from being deleted after being embeded
+  --audio-only      Only extract audio files
+  --write-metadata  Write metadata to file
 ```
 
 ### Example usage
