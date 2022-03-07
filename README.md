@@ -36,7 +36,7 @@ optional arguments:
 #### Download an entire tv-show with subtitles:
 
 ```bash
-nrkdl --url https://tv.nrk.no/serie/exit --write-subtitles
+nrkdl --url https://tv.nrk.no/serie/exit --write-subs
 ```
 
 #### Download a single tv-show episode:
