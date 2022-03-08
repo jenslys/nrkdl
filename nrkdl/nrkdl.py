@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 import os
 import yt_dlp
+from yt_dlp.postprocessor import MetadataParserPP
 import argparse
 import re
 
@@ -39,13 +40,6 @@ def progress_hooks(d):
         file_tuple = os.path.split(os.path.abspath(d["filename"]))
         print("Done downloading {}".format(file_tuple[1]))
 
-        # ! Regex rename (temp solution)
-        # Exit - 1x2 - 2. Horer og hummer på Hankø → Exit - 1x2 - Horer og hummer på Hankø
-        pattern = r"[0-9]+[.]+[ ]"
-        subst = ""
-        result = re.sub(pattern, subst, d["filename"], 0, re.MULTILINE)
-        os.rename(d["filename"], result)
-
     if d["status"] == "downloading":
         print("Downloading:", d["filename"])
         print("Progress:", d["_percent_str"])
@@ -68,6 +62,7 @@ def download():
         ydl_opts = {
             "writesubtitles": args.write_subs,
             "subtitleslangs": ["all"],
+            "verbose": False,
             "outtmpl": folder_name + "/" + filename,
             "quiet": True,
             "skip_download": False,
@@ -106,6 +101,16 @@ def download():
                     "preferredcodec": "mp3",
                 },
             )
+
+        if "/serie/" in args.url:
+            ydl_opts["postprocessors"].append(
+                {
+                    "key": "MetadataParser",
+                    "when": "pre_process",
+                    "actions": [(MetadataParserPP.Actions.REPLACE, "episode", r"\d+\.+\s", "")],
+                },
+            )
+
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             ydl.download([args.url])
     except Exception as e:
