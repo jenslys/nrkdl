@@ -1,10 +1,10 @@
 # nrkdl
 
-<a href="https://github.com/jenslys/nrkdl/releases/"><img src="https://img.shields.io/github/v/release/jenslys/nrkdl.svg" alt="Releases"></a>
+[![Releases](https://img.shields.io/github/v/release/jenslys/nrkdl.svg)](https://github.com/jenslys/nrkdl/releases/)
 
-Download shows and movies from tv.nrk.no
+Download content from nrk.no
 
-**Disclaimer:** This is for educational purposes ONLY. Use at your own risk.
+**Disclaimer:** This is for educational purposes **ONLY**.
 
 ## Installation
 
@@ -12,14 +12,14 @@ Download shows and movies from tv.nrk.no
 pip install nrkdl
 ```
 
-#### System requirements
+### System requirements
 
 - python3
 - ffmpeg
 
 ## Usage
 
-```
+```text
 usage: nrkdl.py [-h] --url URL [--write-subs] [--keep-subs] [--audio-only] [--write-metadata]
 
 optional arguments:
@@ -33,20 +33,35 @@ optional arguments:
 
 ### Example usage
 
-#### Download an entire tv-show with subtitles:
+#### Download an entire tv-show with subtitles
 
 ```bash
 nrkdl --url https://tv.nrk.no/serie/exit --write-subs
 ```
 
-#### Download a single tv-show episode:
+#### Download a single tv-show episode
 
 ```bash
 nrkdl --url https://tv.nrk.no/serie/exit/sesong/2/episode/6/
 ```
 
-#### Download a movie:
+#### Download a movie
 
 ```bash
 nrkdl --url https://tv.nrk.no/program/MSUI31006017
+```
+
+### Supported sites
+
+```text
+NRK
+NRKPlaylist
+NRKRadioPodkast
+NRKSkole: NRK Skole
+NRKTV: NRK TV and NRK Radio
+NRKTVDirekte: NRK TV Direkte and NRK Radio Direkte
+NRKTVEpisode
+NRKTVEpisodes
+NRKTVSeason
+NRKTVSeries
 ```

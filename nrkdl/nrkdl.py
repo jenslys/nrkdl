@@ -47,7 +47,7 @@ def progress_hooks(d):
         print()
 
 
-def download():
+def main():
     try:
         video_title = "%(series)s"  # Title of show/movie
         movie = "%(title)s.%(ext)s"  # Moviename.mp4
@@ -115,11 +115,3 @@ def download():
             ydl.download([args.url])
     except Exception as e:
         raise e
-
-
-def main():
-    download()
-
-
-if __name__ == "__main__":
-    main()
