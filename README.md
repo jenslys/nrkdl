@@ -8,8 +8,8 @@ Download content from nrk.no
 
 ## Table of contents
 
-- [Installation](#installation)
-  - [Updating](#update)
+- [Installation](#installation) 
+  - [Updating](#updating)
   - [System requirements](#system-requirements)
 - [Usage](#usage)
   - [Example usage](#example-usage)
@@ -19,6 +19,7 @@ Download content from nrk.no
   - [Supported sites](#supported-sites)
 
 
+  
 ## Installation
 
 ```bash
@@ -29,7 +30,7 @@ pip install nrkdl
 
 ```bash
 pip install nrkdl --upgrade
-```zw
+```
 
 ### System requirements
 
