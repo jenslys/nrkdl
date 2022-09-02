@@ -6,16 +6,35 @@ Download content from nrk.no
 
 **Disclaimer:** This is for educational purposes **ONLY**.
 
+## Table of contents
+
+- [Installation](#installation)
+  - [Updating](#update)
+  - [System requirements](#system-requirements)
+- [Usage](#usage)
+  - [Example usage](#example-usage)
+    - [Download an entire tv-show with subtitles](#download-an-entire-tv-show-with-subtitles)
+    - [Download a single tv-show episode](#download-a-single-tv-show-episode)
+    - [Download a movie](#download-a-movie)
+  - [Supported sites](#supported-sites)
+
+
 ## Installation
 
 ```bash
 pip install nrkdl
 ```
 
+## Updating
+
+```bash
+pip install nrkdl --upgrade
+```zw
+
 ### System requirements
 
-- python3
-- ffmpeg
+- [python3](https://www.geeksforgeeks.org/how-to-install-python-on-windows/)
+- [ffmpeg](https://www.geeksforgeeks.org/how-to-install-ffmpeg-on-windows/)
 
 ## Usage
 
