@@ -3,7 +3,6 @@ import os
 import yt_dlp
 from yt_dlp.postprocessor import MetadataParserPP
 import argparse
-import re
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
@@ -49,6 +48,7 @@ def progress_hooks(d):
         file_tuple = os.path.split(os.path.abspath(d["filename"]))
         print("Done downloading {}".format(file_tuple[1]))
 
+    # TODO: #1 Replace progress prints with a progress bar. (https://github.com/tqdm/tqdm)
     if d["status"] == "downloading":
         print("Downloading:", d["filename"])
         print("Progress:", d["_percent_str"])
@@ -61,11 +61,12 @@ def main():
         video_title = "%(series)s"  # Title of show/movie
         movie = "%(title)s.%(ext)s"  # Moviename.mp4
         tvshow = "%(series)s - %(season_number)sx%(episode_number)s - %(episode)s.%(ext)s"  # Exit - 1x2 - Horer og hummer på Hankø
-        download_path = os.getcwd()
+        current_season = "Season %(season_number)s"
+        download_path = os.getcwd()  # ? Gets the current working dir
         folder_name = download_path + "/" + video_title
 
-        if "/serie/" in args.url:  # Identify if its a tvshow or movie
-            filename = tvshow
+        if "/serie/" in args.url:  # ? Identify if its a tvshow or movie
+            filename = current_season + "/" + tvshow
         else:
             filename = movie
         ydl_opts = {
@@ -126,3 +127,7 @@ def main():
             ydl.download([args.url])
     except Exception as e:
         raise e
+
+
+if __name__ == "__main__":
+    main()
