@@ -12,15 +12,24 @@ parser.add_argument(
     required=True,
     help="URL for the Movie/TV-show (e.g: https://tv.nrk.no/program/KOID75006720) ",
 )
-parser.add_argument("--write-subs", action="store_true", help="Download and embed subtitles to file")
+parser.add_argument(
+    "--write-subs", action="store_true", help="Download and embed subtitles to file"
+)
 parser.add_argument(
     "--keep-subs",
     action="store_true",
     required=False,
     help="Prevent the subtitle files from being deleted after being embeded",
 )
-parser.add_argument("--audio-only", action="store_true", required=False, help="Only extract audio files")
-parser.add_argument("--write-metadata", action="store_true", required=False, help="Write metadata to file")
+parser.add_argument(
+    "--audio-only", action="store_true", required=False, help="Only extract audio files"
+)
+parser.add_argument(
+    "--write-metadata",
+    action="store_true",
+    required=False,
+    help="Write metadata to file",
+)
 args = parser.parse_args()
 
 
@@ -107,7 +116,9 @@ def main():
                 {
                     "key": "MetadataParser",
                     "when": "pre_process",
-                    "actions": [(MetadataParserPP.Actions.REPLACE, "episode", r"\d+\.+\s", "")],
+                    "actions": [
+                        (MetadataParserPP.Actions.REPLACE, "episode", r"\d+\.+\s", "")
+                    ],
                 },
             )
 
