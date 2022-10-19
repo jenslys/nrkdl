@@ -44,16 +44,26 @@ class logger(object):
 
 
 def progress_hooks(d):
+    terminal_width = os.get_terminal_size().columns
+
     if d["status"] == "finished":
         file_tuple = os.path.split(os.path.abspath(d["filename"]))
+        print(" " * terminal_width, end="\r")
         print("Done downloading {}".format(file_tuple[1]))
 
-    # TODO: #1 Replace progress prints with a progress bar. (https://github.com/tqdm/tqdm)
     if d["status"] == "downloading":
-        print("Downloading:", d["filename"])
-        print("Progress:", d["_percent_str"])
-        print("ETA:", d["_eta_str"])
-        print()
+        downloading_text = f"Downloading... {d['_percent_str']} "
+        eta_text = f" ETA: {d['_eta_str']}"
+        max_width_progress_bar = min(
+            100, terminal_width - len(downloading_text) - len(eta_text)
+        )
+
+        progress_width = float(d["_percent_str"][:-1]) * max_width_progress_bar / 100
+
+        print(
+            f"{downloading_text}{'█' * round(progress_width)}{' ' * round(max_width_progress_bar - progress_width)}{eta_text}",
+            end="\r",
+        )
 
 
 def main():
