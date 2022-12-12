@@ -95,7 +95,9 @@ def search(args):
     terminal_width = os.get_terminal_size().columns
     series = None
     for i in range(len(results)):
-        if results[i]["_source"]["id"] == args.search: #? If the search result is an exact match
+        if results[i]["_source"]["id"] == args.search.lower().replace(
+            " ", "-"
+        ):  # ? If the search result is an exact match
             series = i + 1
             break
 
@@ -111,6 +113,8 @@ def search(args):
     url = "https://tv.nrk.no/" + results[int(series) - 1]["_source"]["url"]
 
     season = args.season
+    if season == 0:  # ? Download all seasons
+        return url
     if not season:
         season = input("Choose season (a: all): ")
         if season == "a":
@@ -125,6 +129,8 @@ def search(args):
         raise NotImplementedError("Invalid season number.")
 
     episode = args.episode
+    if episode == 0:  # ? Download all episodes in season
+        return url
     if not episode:
         episode = input("Choose episode (a: all): ")
         if episode == "a":
