@@ -3,13 +3,29 @@ import os
 import yt_dlp
 from yt_dlp.postprocessor import MetadataParserPP
 import argparse
+import requests
 
 parser = argparse.ArgumentParser()
-parser.add_argument(
+group = parser.add_mutually_exclusive_group(required=True)
+group.add_argument(
+    "--search",
+    type=str,
+    help="Search for Movie/TV-show, and then download (e.g: Exit)",
+)
+group.add_argument(
     "--url",
     type=str,
-    required=True,
     help="URL for the Movie/TV-show (e.g: https://tv.nrk.no/program/KOID75006720) ",
+)
+parser.add_argument(
+    "--season",
+    type=int,
+    help="Season number (e.g: 1) (Only works if --search is used)",
+)
+parser.add_argument(
+    "--episode",
+    type=int,
+    help="Episode number (e.g: 1) (Only works if --search is used)",
 )
 parser.add_argument(
     "--write-subs", action="store_true", help="Download and embed subtitles to file"
@@ -66,6 +82,71 @@ def progress_hooks(d):
         )
 
 
+def search(args):
+    req = requests.get(f"https://psapi.nrk.no/autocomplete?q={args.search}")
+    if req.status_code != 200:
+        print(req)
+        return
+
+    data = req.json()
+    results = data["result"]
+
+    options_count = min(len(results), 5)
+    terminal_width = os.get_terminal_size().columns
+    series = None
+    for i in range(len(results)):
+        if results[i]["_source"]["id"] == args.search.lower().replace(
+            " ", "-"
+        ):  # ? If the search result is an exact match
+            series = i + 1
+            break
+
+    if series is None:
+        for i in range(options_count):
+            info = f"{i+1}: {results[i]['_type']} - {results[i]['_source']['title']} - "
+            print(
+                f"{info}{results[i]['_source']['description'][:terminal_width - len(info) - 2]}.."
+            )
+        series = input(f"Choose 1-{options_count}: ")
+        if series not in (chr(i) for i in range(ord("1"), ord(str(options_count)) + 1)):
+            return
+    url = "https://tv.nrk.no/" + results[int(series) - 1]["_source"]["url"]
+
+    season = args.season
+    if season == 0:  # ? Download all seasons
+        return url
+    if not season:
+        season = input("Choose season (a: all): ")
+        if season == "a":
+            return url
+        if not season.isdigit():
+            return
+    url += f"/sesong/{season}"
+
+    if (
+        requests.get(url, allow_redirects=False).status_code != 200
+    ):  # TODO check for season count in another way
+        raise NotImplementedError("Invalid season number.")
+
+    episode = args.episode
+    if episode == 0:  # ? Download all episodes in season
+        return url
+    if not episode:
+        episode = input("Choose episode (a: all): ")
+        if episode == "a":
+            return url
+        if not episode.isdigit():
+            return
+    url += f"/episode/{episode}"
+
+    if (
+        requests.get(url, allow_redirects=False).status_code != 200
+    ):  # TODO check for episode count in another way
+        raise NotImplementedError("Invalid episode number.")
+
+    return url
+
+
 def main():
     try:
         video_title = "%(series)s"  # Title of show/movie
@@ -74,6 +155,12 @@ def main():
         current_season = "Season %(season_number)s"
         download_path = os.getcwd()  # ? Gets the current working dir
         folder_name = download_path + "/" + video_title
+
+        if args.search:
+            args.url = search(args)
+            if not args.url:
+                print("Quiting...")
+                return
 
         if "/serie/" in args.url:  # ? Identify if its a tvshow or movie
             filename = current_season + "/" + tvshow
@@ -135,6 +222,10 @@ def main():
 
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             ydl.download([args.url])
+    except (KeyboardInterrupt, EOFError):
+        print("\nDownload canceled by user...")
+    except NotImplementedError as e:
+        print(e)
     except Exception as e:
         raise e
 
