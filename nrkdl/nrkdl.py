@@ -1,4 +1,5 @@
 from __future__ import unicode_literals
+import itertools
 import os
 import yt_dlp
 from yt_dlp.postprocessor import MetadataParserPP
@@ -82,28 +83,46 @@ def progress_hooks(d):
         )
 
 
-def find_number_of_seasons(seriesId):
-    url = f"https://psapi.nrk.no/tv/catalog/series/{seriesId}"
+def ranges(values):
+    for _, group in itertools.groupby(
+        enumerate(values), lambda pair: pair[0] - pair[1]
+    ):
+        group = list(group)
+        yield group[0][1], group[-1][1]
+
+
+def stringify_ranges(r):
+    s = []
+    for c in r:
+        if c[0] == c[1]:
+            s.append(str(c[0]))
+        else:
+            s.append(f"{c[0]}-{c[1]}")
+    return ", ".join(s)
+
+
+def find_seasons(series_id):
+    url = f"https://psapi.nrk.no/tv/catalog/series/{series_id}"
     req = requests.get(url)
     if req.status_code != 200:
         print(req)
         return
     data = req.json()
-    season_count = len(data["_embedded"]["seasons"])
-    return season_count
+    seasons_dict = data["_embedded"]["seasons"]
+    seasons = [seasons_dict[i]["sequenceNumber"] for i in range(len(seasons_dict))]
+    return seasons
 
 
-def find_number_of_episodes(seriesId, season):
-    url = f"https://psapi.nrk.no/tv/catalog/series/{seriesId}"
+def find_episodes(series_id, season_index):
+    url = f"https://psapi.nrk.no/tv/catalog/series/{series_id}"
     req = requests.get(url)
     if req.status_code != 200:
         print(req)
         return
     data = req.json()
-    episode_count = len(
-        data["_embedded"]["seasons"][int(season) - 1]["_embedded"]["episodes"]
-    )
-    return episode_count
+    episodes_dict = data["_embedded"]["seasons"][season_index]["_embedded"]["episodes"]
+    episodes = [episodes_dict[i]["sequenceNumber"] for i in range(len(episodes_dict))]
+    return episodes
 
 
 def search(args):
@@ -135,18 +154,21 @@ def search(args):
         if series not in (chr(i) for i in range(ord("1"), ord(str(options_count)) + 1)):
             return
 
-    series_id = results[int(series) - 1]["_source"]["id"]
-    url = "https://tv.nrk.no/" + results[int(series) - 1]["_source"]["url"]
+    source_dict = results[int(series) - 1]["_source"]
+    series_id = source_dict["id"]
+    url = "https://tv.nrk.no/" + source_dict["url"]
 
     season = args.season
     if season == 0:  # ? Download all seasons
         return url
+
+    seasons = find_seasons(series_id)
     if not season:
-        season_count = find_number_of_seasons(series_id)
-        if season_count == 1:
-            season = 1
+        if len(seasons) == 1:
+            season = seasons[0]
         else:
-            season = input(f"Choose season 1-{season_count} (a: all): ")
+            season_ranges = stringify_ranges(ranges(seasons))
+            season = input(f"Choose season {season_ranges} (a: all): ")
             if season == "a":
                 return url
             if not season.isdigit():
@@ -162,11 +184,16 @@ def search(args):
     if episode == 0:  # ? Download all episodes in season
         return url
     if not episode:
-        episode_count = find_number_of_episodes(series_id, season)
-        if episode_count == 1:
-            episode = 1
+        season_index = seasons.index(
+            int(season)
+        )  # ? If season is 8, and nrk does not have earlier seasons than 8, then this season is index 0
+
+        episodes = find_episodes(series_id, season_index)
+        if len(episodes) == 1:
+            episode = episodes[0]
         else:
-            episode = input(f"Choose episode 1-{episode_count} (a: all): ")
+            episodes_ranges = stringify_ranges(ranges(episodes))
+            episode = input(f"Choose episode {episodes_ranges} (a: all): ")
             if episode == "a":
                 return url
             if not episode.isdigit():
