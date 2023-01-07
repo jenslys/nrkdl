@@ -82,6 +82,30 @@ def progress_hooks(d):
         )
 
 
+def find_number_of_seasons(seriesId):
+    url = f"https://psapi.nrk.no/tv/catalog/series/{seriesId}"
+    req = requests.get(url)
+    if req.status_code != 200:
+        print(req)
+        return
+    data = req.json()
+    season_count = len(data["_embedded"]["seasons"])
+    return season_count
+
+
+def find_number_of_episodes(seriesId, season):
+    url = f"https://psapi.nrk.no/tv/catalog/series/{seriesId}"
+    req = requests.get(url)
+    if req.status_code != 200:
+        print(req)
+        return
+    data = req.json()
+    episode_count = len(
+        data["_embedded"]["seasons"][int(season) - 1]["_embedded"]["episodes"]
+    )
+    return episode_count
+
+
 def search(args):
     req = requests.get(f"https://psapi.nrk.no/autocomplete?q={args.search}")
     if req.status_code != 200:
@@ -110,17 +134,23 @@ def search(args):
         series = input(f"Choose 1-{options_count}: ")
         if series not in (chr(i) for i in range(ord("1"), ord(str(options_count)) + 1)):
             return
+
+    series_id = results[int(series) - 1]["_source"]["id"]
     url = "https://tv.nrk.no/" + results[int(series) - 1]["_source"]["url"]
 
     season = args.season
     if season == 0:  # ? Download all seasons
         return url
     if not season:
-        season = input("Choose season (a: all): ")
-        if season == "a":
-            return url
-        if not season.isdigit():
-            return
+        season_count = find_number_of_seasons(series_id)
+        if season_count == 1:
+            season = 1
+        else:
+            season = input(f"Choose season 1-{season_count} (a: all): ")
+            if season == "a":
+                return url
+            if not season.isdigit():
+                return
     url += f"/sesong/{season}"
 
     if (
@@ -132,11 +162,15 @@ def search(args):
     if episode == 0:  # ? Download all episodes in season
         return url
     if not episode:
-        episode = input("Choose episode (a: all): ")
-        if episode == "a":
-            return url
-        if not episode.isdigit():
-            return
+        episode_count = find_number_of_episodes(series_id, season)
+        if episode_count == 1:
+            episode = 1
+        else:
+            episode = input(f"Choose episode 1-{episode_count} (a: all): ")
+            if episode == "a":
+                return url
+            if not episode.isdigit():
+                return
     url += f"/episode/{episode}"
 
     if (
