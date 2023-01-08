@@ -71,22 +71,22 @@ def progress_hooks(d):
     if d["status"] == "downloading":
         downloading_text = f"Downloading... {d['_percent_str']} "
         eta_text = f" ETA: {d['_eta_str']}"
-        max_width_progress_bar = min(
-            100, terminal_width - len(downloading_text) - len(eta_text)
-        )
+        max_width_progress_bar = min(100, terminal_width - len(downloading_text) - len(eta_text))
 
         progress_width = float(d["_percent_str"][:-1]) * max_width_progress_bar / 100
 
+        progress_done = "█" * round(progress_width)
+        progress_remaining = " " * round(max_width_progress_bar - progress_width)
+
         print(
-            f"{downloading_text}{'█' * round(progress_width)}{' ' * round(max_width_progress_bar - progress_width)}{eta_text}",
+            f"{downloading_text}{progress_done}{progress_remaining}{eta_text}",
             end="\r",
         )
 
 
 def ranges(values):
-    for _, group in itertools.groupby(
-        enumerate(values), lambda pair: pair[0] - pair[1]
-    ):
+    values = [v for v in values if v is not None]  # ? None == unavailable season/episode
+    for _, group in itertools.groupby(enumerate(values), lambda pair: pair[0] - pair[1]):
         group = list(group)
         yield group[0][1], group[-1][1]
 
@@ -108,8 +108,15 @@ def find_seasons(series_id):
         print(req)
         return
     data = req.json()
+    if data["seriesType"] != "sequential":  # ? Not a TV-show
+        return ""
     seasons_dict = data["_embedded"]["seasons"]
-    seasons = [seasons_dict[i]["sequenceNumber"] for i in range(len(seasons_dict))]
+    seasons = [
+        seasons_dict[i]["sequenceNumber"]
+        if seasons_dict[i]["hasAvailableEpisodes"]
+        else None  # ? Exists, but unavailable
+        for i in range(len(seasons_dict))
+    ]
     return seasons
 
 
@@ -121,7 +128,13 @@ def find_episodes(series_id, season_index):
         return
     data = req.json()
     episodes_dict = data["_embedded"]["seasons"][season_index]["_embedded"]["episodes"]
-    episodes = [episodes_dict[i]["sequenceNumber"] for i in range(len(episodes_dict))]
+
+    episodes = [
+        episodes_dict[i]["sequenceNumber"]
+        if episodes_dict[i]["availability"]["status"] == "available"
+        else None  # ? Exists, but unavailable
+        for i in range(len(episodes_dict))
+    ]
     return episodes
 
 
@@ -184,9 +197,7 @@ def search(args):
     if episode == 0:  # ? Download all episodes in season
         return url
     if not episode:
-        season_index = seasons.index(
-            int(season)
-        )  # ? If season is 8, and nrk does not have earlier seasons than 8, then this season is index 0
+        season_index = seasons.index(int(season))
 
         episodes = find_episodes(series_id, season_index)
         if len(episodes) == 1:
@@ -212,7 +223,7 @@ def main():
     try:
         video_title = "%(series)s"  # Title of show/movie
         movie = "%(title)s.%(ext)s"  # Moviename.mp4
-        tvshow = "%(series)s - %(season_number)sx%(episode_number)s - %(episode)s.%(ext)s"  # Exit - 1x2 - Horer og hummer på Hankø
+        tvshow = "%(series)s - %(season_number)sx%(episode_number)s - %(episode)s.%(ext)s"
         current_season = "Season %(season_number)s"
         download_path = os.getcwd()  # ? Gets the current working dir
         folder_name = download_path + "/" + video_title
@@ -275,9 +286,7 @@ def main():
                 {
                     "key": "MetadataParser",
                     "when": "pre_process",
-                    "actions": [
-                        (MetadataParserPP.Actions.REPLACE, "episode", r"\d+\.+\s", "")
-                    ],
+                    "actions": [(MetadataParserPP.Actions.REPLACE, "episode", r"\d+\.+\s", "")],
                 },
             )
 
