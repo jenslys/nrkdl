@@ -17,5 +17,5 @@ jobs:
         uses: py-actions/flake8@v2
         with:
           max-line-length: "100"
-          path: "nrkdl/nrkdl"
+          path: "nrkdl/nrkdl.py"
           plugins: "flake8-black"
