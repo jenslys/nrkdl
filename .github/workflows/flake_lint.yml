@@ -13,8 +13,9 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: "3.11"
-          max-line-length: "100"
-          plugins: "flake8-black"
-          path: "nrkdl/nrkdl.py"
       - name: flake8 Lint
         uses: py-actions/flake8@v2
+        with:
+          max-line-length: "100"
+          path: "nrkdl/nrkdl"
+          plugins: "flake8-black"
