@@ -13,5 +13,7 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: "3.11"
+          max-line-length: "100"
+          plugins: "flake8-black"
       - name: flake8 Lint
         uses: py-actions/flake8@v2
