@@ -247,6 +247,7 @@ def main():
             "skip_download": False,
             "no_warnings": True,
             "no_color": True,
+            "ignoreerrors": True,
             "progress_hooks": [progress_hooks],
             "logger": logger(),
             "postprocessors": [],
