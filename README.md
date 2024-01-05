@@ -4,7 +4,7 @@
 
 Download content from nrk.no
 
-**Disclaimer:** This is for educational purposes **ONLY**.
+**Disclaimer:** This is for educational and personal purposes **ONLY**. I am not responsible for any misuse of this tool. See NRKs copyright [here](https://www.nrk.no/etikk/opphavsrett-pa-nrk.no-1.2843522).
 
 ## Table of contents
 
