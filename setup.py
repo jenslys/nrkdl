@@ -22,7 +22,7 @@ setuptools.setup(
     ],
     python_requires=">=3.6",
     py_modules=["nrkdl"],
-    install_requires=["yt-dlp"],
+    install_requires=["yt-dlp", "requests"],
     entry_points={
         "console_scripts": [
             "nrkdl=nrkdl.nrkdl:main",
